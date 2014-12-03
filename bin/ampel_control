@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'ampel_extase'
+
+serial      = ENV['SERIAL'] or
+  fail 'need env var SERIAL for path to serial port'
+jenkins_url = ENV['JENKINS_URL'] or
+  fail 'need env var JENKINS_URL of the form http://test2.local:8080/job/foo'
+sleep_duration = (ENV['SLEEP'] || 10).to_i
+
+AmpelExtase::Controller.new(
+  serial,
+  jenkins_url,
+  debug: true,
+  sleep: sleep_duration,
+).start
