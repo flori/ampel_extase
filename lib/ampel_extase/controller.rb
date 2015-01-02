@@ -16,15 +16,20 @@ class AmpelExtase::Controller
 
   def start
     puts "starting controller loop"
+    at_exit { stop }
     loop do
       begin
         perform
       rescue => e
-        warn "Caught: #{e.class}: #{e}\n#{e.backtrace * ?\n}"
-        crashed
+        handle_crash e
       end
       sleep_duration
     end
+  end
+
+  def stop
+    switch_all_lights_off
+    self
   end
 
   private
@@ -76,11 +81,16 @@ class AmpelExtase::Controller
     @jenkins.fetch_build(:last_build)['building']
   end
 
-  def crashed
-    return if @crashed
+  def switch_all_lights_off
     for light in @lights
       light.off
     end
+  end
+
+  def handle_crash(exception)
+    warn "Caught: #{exception.class}: #{exception}\n#{exception.backtrace * ?\n}"
+    return if @crashed
+    switch_all_lights_off
   rescue
   ensure
     @crashed = true
