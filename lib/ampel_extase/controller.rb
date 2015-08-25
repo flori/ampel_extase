@@ -90,6 +90,7 @@ class AmpelExtase::Controller
       puts success('WARNING SUCCESS')
     when 'FAILURE', 'ABORTED'
       if state.building?
+        @lights.aux.off
         puts failure_building('WARNING FAILURE BUILDING')
       else
         @lights.aux.on
