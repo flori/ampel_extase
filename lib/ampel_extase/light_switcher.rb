@@ -2,8 +2,16 @@ require 'socket_switcher'
 
 module AmpelExtase
   class LightSwitcher
-    def initialize(serial, debug: false)
-      @port = SocketSwitcher::Port.new(serial, debug: debug)
+    def self.for(serial:)
+      if serial
+        new SocketSwitcher::Port.new(serial)
+      else
+        Tins::NULL
+      end
+    end
+
+    def initialize(port)
+      @port = port
     end
 
     attr_reader :port
@@ -24,9 +32,8 @@ module AmpelExtase
       [
         :green,
         :red,
-        # not in use for now :aux,
+        :aux,
       ].map { |color| __send__(color) }.each(&block)
     end
   end
 end
-

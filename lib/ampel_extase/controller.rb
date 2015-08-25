@@ -1,17 +1,33 @@
 #!/usr/bin/env ruby
 
-require 'ampel_extase/jenkins_client'
+require 'term/ansicolor'
 require 'ampel_extase/light_switcher'
-require 'ampel_extase/build_state'
+require 'ampel_extase/jenkins_state_observer'
 
 class AmpelExtase::Controller
-  def initialize(serial, jenkins_url, debug: false, sleep: 10)
-    @jenkins = AmpelExtase::JenkinsClient.new(jenkins_url, debug: debug)
-    check_jenkins
-    @lights   = AmpelExtase::LightSwitcher.new(serial, debug: debug)
+  include Term::ANSIColor
+
+  def self.for(
+    serial:,
+    jenkins_url:,
+    warning_jenkins_url: nil,
+    sleep: 10
+  )
+    ampel_jenkins   = AmpelExtase::JenkinsStateObserver.for_url(jenkins_url)
+    warning_jenkins = AmpelExtase::JenkinsStateObserver.for_url(warning_jenkins_url)
+    lights = AmpelExtase::LightSwitcher.for(serial: serial)
+    new(ampel_jenkins, warning_jenkins, lights, sleep: sleep)
+  end
+
+  def initialize(
+    ampel_jenkins,
+    warning_jenkins,
+    lights,
+    sleep: 10
+  )
+    @ampel_jenkins, @warning_jenkins, @lights, @sleep =
+      ampel_jenkins, warning_jenkins, lights, sleep
     check_lights
-    @sleep = sleep
-    @build_state = AmpelExtase::BuildState.for
   end
 
   def start
@@ -41,50 +57,65 @@ class AmpelExtase::Controller
 
   def perform
     @crashed = false
-    on_state_change do |state|
-      perform_switch state
+    @ampel_jenkins.on_state_change do |state|
+      perform_lights_switch state
+    end
+    @warning_jenkins.on_state_change do |state|
+      perform_warning state
     end
   end
 
-  def perform_switch(state)
+  def perform_lights_switch(state)
     case state.last_result
     when 'SUCCESS'
       @lights.green.on
       @lights.red.off
+      puts success('LIGHTS SUCCESS')
     when 'FAILURE', 'ABORTED'
       @lights.red.on
       if state.building?
         @lights.green.on
+        puts failure_building('LIGHTS FAILURE BUILDING')
       else
         @lights.green.off
+        puts failure('LIGHTS FAILURE')
       end
     end
   end
 
-  def on_state_change
-    new_state = AmpelExtase::BuildState.for [ last_result, building? ]
-    if new_state == @build_state
-      puts "state did not change, is still #@build_state => do nothing"
-    else
-      puts "state changed from #@build_state to #{new_state} => taking action"
-      yield new_state
+  def perform_warning(state)
+    case state.last_result
+    when 'SUCCESS'
+      @lights.aux.off
+      puts success('WARNING SUCCESS')
+    when 'FAILURE', 'ABORTED'
+      if state.building?
+        puts failure_building('WARNING FAILURE BUILDING')
+      else
+        @lights.aux.on
+        puts failure('WARNING FAILURE')
+      end
     end
-  ensure
-    @build_state = new_state
   end
 
-  def last_result
-    @jenkins.fetch_build(:last_completed_build)['result']
+  def success(message)
+    green message
   end
 
-  def building?
-    @jenkins.fetch_build(:last_build)['building']
+  def failure(message)
+    red message
+  end
+
+  def failure_building(message)
+    green on_red message
   end
 
   def switch_all_lights_off
-    for light in @lights
-      light.off
-    end
+    @lights.each(&:off)
+  end
+
+  def switch_all_lights_on
+    @lights.each(&:on)
   end
 
   def handle_crash(exception)
@@ -98,19 +129,10 @@ class AmpelExtase::Controller
 
   def check_lights
     puts "checking lights configuration"
-    for light in @lights
-      light.on
-    end
+    switch_all_lights_on
     sleep 1
-    for light in @lights
-      light.off
-    end
+    switch_all_lights_off
     sleep 1
     puts "OK"
-  end
-
-  def check_jenkins
-    puts "checking jenkins configuration"
-    @jenkins.fetch and puts "OK"
   end
 end

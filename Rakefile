@@ -17,10 +17,11 @@ GemHadar do
   readme      'README.md'
   executables.merge Dir['bin/*'].map { |x| File.basename(x) }
 
-  dependency             'tins',        '~>1.0'
+  dependency             'tins',           '~>1.0'
+  dependency             'term-ansicolor', '~>1.0'
   dependency             'socket_switcher'
-  development_dependency 'simplecov',   '~>0.9'
-  development_dependency 'rspec',       '~>3.0'
+  development_dependency 'simplecov',      '~>0.9'
+  development_dependency 'rspec',          '~>3.0'
   development_dependency 'byebug'
 
   default_task_dependencies :spec

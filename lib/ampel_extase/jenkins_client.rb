@@ -5,21 +5,19 @@ require 'uri'
 
 module AmpelExtase
   class JenkinsClient
-    def initialize(url, debug: false)
+    def initialize(url)
       url = URI.parse(url.to_s) unless URI::HTTP === url
-      @url, @debug = url, debug
+      @url = url
     end
+
+    attr_reader :url
 
     def api_url(*path)
       [ @url, *path, 'api', 'json' ].compact * '/'
     end
 
-    def console_url(number)
-      [ @url, number, 'consoleText' ] * '/'
-    end
-
     def fetch(url = api_url)
-      @debug and STDERR.puts "Fetching #{url.to_s.inspect}."
+      puts "Fetching #{url.to_s.inspect}."
       JSON open(url).read
     rescue => e
       e.message << " for #{url.inspect}"
@@ -35,18 +33,6 @@ module AmpelExtase
               api_url(type)
             end
       fetch url
-    end
-
-    def fetch_build_revision(type)
-      data = fetch_build(type)
-      data['actions'].find { |x| x.keys.include?('lastBuiltRevision') }['lastBuiltRevision']['SHA1']
-    rescue
-      nil
-    end
-
-    def fetch_console_text(type)
-      build = fetch_build(type)
-      open(console_url(build['number'])).read
     end
   end
 end

@@ -2,15 +2,16 @@
 
 require 'ampel_extase'
 
-serial      = ENV['SERIAL'] or
+serial      = ENV['SERIAL'].full? or
   fail 'need env var SERIAL for path to serial port'
-jenkins_url = ENV['JENKINS_URL'] or
+jenkins_url = ENV['JENKINS_URL'].full? or
   fail 'need env var JENKINS_URL of the form http://test2.local:8080/job/foo'
+warning_jenkins_url = ENV['WARNING_JENKINS_URL'].full?
 sleep_duration = (ENV['SLEEP'] || 10).to_i
 
-AmpelExtase::Controller.new(
-  serial,
-  jenkins_url,
-  debug: true,
-  sleep: sleep_duration,
+AmpelExtase::Controller.for(
+  serial: serial,
+  jenkins_url: jenkins_url,
+  warning_jenkins_url: warning_jenkins_url,
+  sleep: sleep_duration
 ).start
