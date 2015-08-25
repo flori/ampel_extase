@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 describe AmpelExtase::JenkinsStateObserver do
+  before do
+    allow_any_instance_of(AmpelExtase::JenkinsClient).to receive(:puts)
+    allow_any_instance_of(AmpelExtase::JenkinsStateObserver).to receive(:puts)
+  end
+
   let :client do
     double('AmpelExtase::JenkinsClient', url: 'http://foo/bar')
   end
