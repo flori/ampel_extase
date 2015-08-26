@@ -13,13 +13,14 @@ class AmpelExtase::JenkinsStateObserver
 
   def initialize(jenkins)
     @jenkins = jenkins
-    @build_state = AmpelExtase::BuildState.for
+    set_state AmpelExtase::BuildState.for
     check
   end
 
   def check
     puts "checking jenkins configuration for #{@jenkins.url.to_s.inspect}"
     @jenkins.fetch and puts "OK"
+    self
   end
 
   def last_result
@@ -34,15 +35,25 @@ class AmpelExtase::JenkinsStateObserver
     new_state != @build_state
   end
 
+  def set_state(state)
+    @build_state = state
+    @state_changed_at = Time.now
+    self
+  end
+
+  attr_reader :state_changed_at
+
   def on_state_change
     new_state = AmpelExtase::BuildState.for [ last_result, building? ]
     if state_changed?(new_state)
       puts "state changed from #@build_state to #{new_state} => taking action"
-      yield new_state
+      begin
+        yield new_state
+      ensure
+        set_state new_state
+      end
     else
       puts "state did not change, is still #@build_state => do nothing"
     end
-  ensure
-    @build_state = new_state
   end
 end

@@ -63,6 +63,7 @@ class AmpelExtase::Controller
     @warning_jenkins.on_state_change do |state|
       perform_warning state
     end
+    expire_warning
   end
 
   def perform_lights_switch(state)
@@ -99,6 +100,13 @@ class AmpelExtase::Controller
     end
   end
 
+  def expire_warning
+    if Time.now > @warning_jenkins.state_changed_at + 6 * @sleep
+      @lights.aux.off
+      puts info('WARNING EXPIRED')
+    end
+  end
+
   def success(message)
     green message
   end
@@ -111,6 +119,9 @@ class AmpelExtase::Controller
     green on_red message
   end
 
+  def info(message)
+    yellow message
+  end
   def switch_all_lights_off
     @lights.each(&:off)
   end

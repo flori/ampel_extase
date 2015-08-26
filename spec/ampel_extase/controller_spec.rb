@@ -223,4 +223,26 @@ describe AmpelExtase::Controller do
       end
     end
   end
+
+  describe '#expire_warning' do
+    let :aux do
+      double('Device')
+    end
+
+    before do
+      controller.instance_variable_set :@lights, double('Lights', aux: aux)
+    end
+
+    let :expire_warning do
+      controller.instance_eval { expire_warning }
+    end
+
+    it 'expires warnings after some time' do
+      allow(controller.instance_variable_get(:@warning_jenkins)).to\
+        receive(:state_changed_at).and_return Time.now - 65
+      expect(aux).to receive(:off)
+      expect(controller).to receive(:info).with('WARNING EXPIRED').and_call_original
+      expire_warning
+    end
+  end
 end

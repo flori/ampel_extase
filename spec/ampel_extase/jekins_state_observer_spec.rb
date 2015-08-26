@@ -76,7 +76,11 @@ describe AmpelExtase::JenkinsStateObserver do
     end
 
     it 'tracks changes in build state' do
+      Time.dummy(past = Time.now - 10) do
+        jso
+      end
       expect(jso.instance_variable_get(:@build_state)).to eq bs_initial
+      expect(jso.state_changed_at).to eq past
       allow(client).to receive(:fetch_build).with(:last_completed_build).
         and_return('result' => 'SUCCESS')
       allow(client).to receive(:fetch_build).with(:last_build).
@@ -85,8 +89,15 @@ describe AmpelExtase::JenkinsStateObserver do
         "state changed from N/A to SUCCESS (building) => "\
         "taking action"
       )
-      expect { |b| jso.on_state_change(&b) }.to yield_with_args(bs_success)
+      now = nil
+      Time.dummy(Time.now) do
+        expect { |b|
+          jso.on_state_change(&b)
+          now = Time.now
+        }.to yield_with_args(bs_success)
+      end
       expect(jso.instance_variable_get(:@build_state)).to eq bs_success
+      expect(jso.state_changed_at).to eq now
       allow(client).to receive(:fetch_build).with(:last_completed_build).
         and_return('result' => 'FAILURE')
       allow(client).to receive(:fetch_build).with(:last_build).
