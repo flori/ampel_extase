@@ -23,6 +23,7 @@ GemHadar do
   development_dependency 'simplecov',      '~>0.9'
   development_dependency 'rspec',          '~>3.0'
   development_dependency 'byebug'
+  development_dependency 'codeclimate-test-reporter'
 
   default_task_dependencies :spec
 end

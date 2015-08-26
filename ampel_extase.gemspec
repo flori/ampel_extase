@@ -12,8 +12,8 @@ Gem::Specification.new do |s|
   s.description = "Library to control the build traffic light. Yes, we can\u{2026}"
   s.email = "flori@ping.de"
   s.executables = ["ampel_control"]
-  s.extra_rdoc_files = ["README.md", "lib/ampel_extase.rb", "lib/ampel_extase/build_state.rb", "lib/ampel_extase/controller.rb", "lib/ampel_extase/jenkins_client.rb", "lib/ampel_extase/jenkins_multi_state_observer.rb", "lib/ampel_extase/jenkins_state_observer.rb", "lib/ampel_extase/light_switcher.rb", "lib/ampel_extase/version.rb"]
-  s.files = [".gitignore", ".utilsrc", "Gemfile", "README.md", "Rakefile", "VERSION", "ampel_extase.gemspec", "bin/ampel_control", "lib/ampel_extase.rb", "lib/ampel_extase/build_state.rb", "lib/ampel_extase/controller.rb", "lib/ampel_extase/jenkins_client.rb", "lib/ampel_extase/jenkins_multi_state_observer.rb", "lib/ampel_extase/jenkins_state_observer.rb", "lib/ampel_extase/light_switcher.rb", "lib/ampel_extase/version.rb", "spec/ampel_extase/build_state_spec.rb", "spec/ampel_extase/controller_spec.rb", "spec/ampel_extase/jekins_state_observer_spec.rb", "spec/ampel_extase/jenkins_client_spec.rb", "spec/ampel_extase/light_switcher_spec.rb", "spec/spec_helper.rb"]
+  s.extra_rdoc_files = ["README.md", "lib/ampel_extase.rb", "lib/ampel_extase/build_state.rb", "lib/ampel_extase/controller.rb", "lib/ampel_extase/jenkins_client.rb", "lib/ampel_extase/jenkins_state_observer.rb", "lib/ampel_extase/light_switcher.rb", "lib/ampel_extase/version.rb"]
+  s.files = [".gitignore", ".utilsrc", "Gemfile", "README.md", "Rakefile", "VERSION", "ampel_extase.gemspec", "bin/ampel_control", "lib/ampel_extase.rb", "lib/ampel_extase/build_state.rb", "lib/ampel_extase/controller.rb", "lib/ampel_extase/jenkins_client.rb", "lib/ampel_extase/jenkins_state_observer.rb", "lib/ampel_extase/light_switcher.rb", "lib/ampel_extase/version.rb", "spec/ampel_extase/build_state_spec.rb", "spec/ampel_extase/controller_spec.rb", "spec/ampel_extase/jekins_state_observer_spec.rb", "spec/ampel_extase/jenkins_client_spec.rb", "spec/ampel_extase/light_switcher_spec.rb", "spec/spec_helper.rb"]
   s.homepage = "http://github.com/flori/ampel_extase"
   s.licenses = ["GPL-2"]
   s.rdoc_options = ["--title", "AmpelExtase - Library to control the build traffic light", "--main", "README.md"]
@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<simplecov>, ["~> 0.9"])
       s.add_development_dependency(%q<rspec>, ["~> 3.0"])
       s.add_development_dependency(%q<byebug>, [">= 0"])
+      s.add_development_dependency(%q<codeclimate-test-reporter>, [">= 0"])
       s.add_runtime_dependency(%q<tins>, ["~> 1.0"])
       s.add_runtime_dependency(%q<term-ansicolor>, ["~> 1.0"])
       s.add_runtime_dependency(%q<socket_switcher>, [">= 0"])
@@ -37,6 +38,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<simplecov>, ["~> 0.9"])
       s.add_dependency(%q<rspec>, ["~> 3.0"])
       s.add_dependency(%q<byebug>, [">= 0"])
+      s.add_dependency(%q<codeclimate-test-reporter>, [">= 0"])
       s.add_dependency(%q<tins>, ["~> 1.0"])
       s.add_dependency(%q<term-ansicolor>, ["~> 1.0"])
       s.add_dependency(%q<socket_switcher>, [">= 0"])
@@ -46,6 +48,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<simplecov>, ["~> 0.9"])
     s.add_dependency(%q<rspec>, ["~> 3.0"])
     s.add_dependency(%q<byebug>, [">= 0"])
+    s.add_dependency(%q<codeclimate-test-reporter>, [">= 0"])
     s.add_dependency(%q<tins>, ["~> 1.0"])
     s.add_dependency(%q<term-ansicolor>, ["~> 1.0"])
     s.add_dependency(%q<socket_switcher>, [">= 0"])
