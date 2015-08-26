@@ -1,12 +1,9 @@
 rvm:
-  - 2.0
   - 2.1
   - 2.2
-  - ruby-head
   - jruby-head
 matrix:
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby-head
 env:
   - CODECLIMATE_REPO_TOKEN=6a30c15f0405afc4bcdb43205af4520a2b38cc422d014198f599a25a1df2cacf
