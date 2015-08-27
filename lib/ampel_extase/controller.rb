@@ -3,6 +3,7 @@
 require 'term/ansicolor'
 require 'ampel_extase/light_switcher'
 require 'ampel_extase/jenkins_state_observer'
+require 'ampel_extase/jenkins_warning_state_observer'
 
 class AmpelExtase::Controller
   include Term::ANSIColor
@@ -14,7 +15,8 @@ class AmpelExtase::Controller
     sleep: 10
   )
     ampel_jenkins   = AmpelExtase::JenkinsStateObserver.for_url(jenkins_url)
-    warning_jenkins = AmpelExtase::JenkinsStateObserver.for_url(warning_jenkins_url)
+    urls = warning_jenkins_url.full?(:split, ?,) || []
+    warning_jenkins = AmpelExtase::JenkinsWarningStateObserver.for_urls(*urls)
     lights = AmpelExtase::LightSwitcher.for(serial: serial)
     new(ampel_jenkins, warning_jenkins, lights, sleep: sleep)
   end
@@ -27,6 +29,7 @@ class AmpelExtase::Controller
   )
     @ampel_jenkins, @warning_jenkins, @lights, @sleep =
       ampel_jenkins, warning_jenkins, lights, sleep
+    @expire_duration = 6 * @sleep
     check_lights
   end
 
@@ -60,7 +63,7 @@ class AmpelExtase::Controller
     @ampel_jenkins.on_state_change do |state|
       perform_lights_switch state
     end
-    @warning_jenkins.on_state_change do |state|
+    @warning_jenkins.on_state_change(@expire_duration) do |state|
       perform_warning state
     end
     expire_warning
@@ -101,7 +104,7 @@ class AmpelExtase::Controller
   end
 
   def expire_warning
-    if Time.now > @warning_jenkins.state_changed_at + 6 * @sleep
+    if @warning_jenkins.expired?(@expire_duration)
       @lights.aux.off
       puts info('WARNING EXPIRED')
     end

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe AmpelExtase::Controller do
   before do
     allow_any_instance_of(AmpelExtase::JenkinsClient).to receive(:puts)
-    allow_any_instance_of(AmpelExtase::Controller).to receive(:puts)
+    allow_any_instance_of(described_class).to receive(:puts)
     allow_any_instance_of(AmpelExtase::JenkinsStateObserver).to receive(:puts)
     allow_any_instance_of(described_class).to receive(:sleep)
   end
@@ -12,7 +12,11 @@ describe AmpelExtase::Controller do
     double('AmpelExtase::JenkinsClient', url: 'http://foo/bar')
   end
 
-  let :warning_client do
+  let :warning_client1 do
+    double('AmpelExtase::JenkinsClient', url: 'http://foo/bar')
+  end
+
+  let :warning_client2 do
     double('AmpelExtase::JenkinsClient', url: 'http://foo/bar')
   end
 
@@ -20,8 +24,18 @@ describe AmpelExtase::Controller do
     AmpelExtase::JenkinsStateObserver.new ampel_client
   end
 
+  let :warning_jenkins1 do
+    AmpelExtase::JenkinsStateObserver.new(warning_client1)
+  end
+
+  let :warning_jenkins2 do
+    AmpelExtase::JenkinsStateObserver.new(warning_client2)
+  end
+
   let :warning_jenkins do
-    AmpelExtase::JenkinsStateObserver.new warning_client
+    AmpelExtase::JenkinsWarningStateObserver.new [
+      warning_jenkins1, warning_jenkins2
+    ]
   end
 
   let :lights do
@@ -37,7 +51,7 @@ describe AmpelExtase::Controller do
   end
 
   before do
-    for client in [ ampel_client, warning_client ]
+    for client in [ ampel_client, warning_client1, warning_client2 ]
       allow(client).to receive(:fetch).and_return true
       allow(client).to receive(:fetch_build).and_return('result' => 'N/A')
     end
@@ -97,16 +111,25 @@ describe AmpelExtase::Controller do
       controller.instance_eval { perform }
     end
 
+    let :aux do
+      double('Device', on: true)
+    end
+
+    before do
+      controller.instance_variable_set :@lights, double('Lights', aux: aux)
+    end
+
     it 'reacts to state changes' do
       state = AmpelExtase::BuildState.for
       allow(ampel_jenkins).to receive(:state_changed?).and_return true
       expect { |b| ampel_jenkins.on_state_change(&b) }.to yield_with_args(state)
-      allow(warning_jenkins).to receive(:state_changed?).and_return true
-      expect { |b| warning_jenkins.on_state_change(&b) }.to yield_with_args(state)
+      allow(warning_jenkins1).to receive(:state_changed?).and_return true
+      state = AmpelExtase::BuildState.for [ 'FAILURE', false ]
+      allow(warning_jenkins1).to receive(:fetch_new_state).and_return state
+      expect { |b| warning_jenkins.on_state_change(60, &b) }.to yield_with_args(state)
       perform
     end
   end
-
 
   describe '#handle_crash' do
     let :exception do
@@ -226,7 +249,7 @@ describe AmpelExtase::Controller do
 
   describe '#expire_warning' do
     let :aux do
-      double('Device')
+      double('Device', on: true)
     end
 
     before do
@@ -239,7 +262,7 @@ describe AmpelExtase::Controller do
 
     it 'expires warnings after some time' do
       allow(controller.instance_variable_get(:@warning_jenkins)).to\
-        receive(:state_changed_at).and_return Time.now - 65
+        receive(:expired?).and_return true
       expect(aux).to receive(:off)
       expect(controller).to receive(:info).with('WARNING EXPIRED').and_call_original
       expire_warning

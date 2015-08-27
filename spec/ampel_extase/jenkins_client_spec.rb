@@ -2,11 +2,11 @@ require 'spec_helper'
 
 describe AmpelExtase::JenkinsClient do
   before do
-    allow_any_instance_of(AmpelExtase::JenkinsClient).to receive(:puts)
+    allow_any_instance_of(described_class).to receive(:puts)
   end
 
   let :client do
-    AmpelExtase::JenkinsClient.new 'http://foo/bar'
+    described_class.new 'http://foo/bar'
   end
 
   let :opened_uri do

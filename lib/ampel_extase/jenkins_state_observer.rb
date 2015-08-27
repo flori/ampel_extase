@@ -41,10 +41,12 @@ class AmpelExtase::JenkinsStateObserver
     self
   end
 
-  attr_reader :state_changed_at
+  def fetch_new_state
+    AmpelExtase::BuildState.for [ last_result, building? ]
+  end
 
   def on_state_change
-    new_state = AmpelExtase::BuildState.for [ last_result, building? ]
+    new_state = fetch_new_state
     if state_changed?(new_state)
       puts "state changed from #@build_state to #{new_state} => taking action"
       begin
@@ -55,5 +57,10 @@ class AmpelExtase::JenkinsStateObserver
     else
       puts "state did not change, is still #@build_state => do nothing"
     end
+    self
+  end
+
+  def expired?(duration)
+    Time.now > @state_changed_at + duration
   end
 end
