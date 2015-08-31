@@ -14,6 +14,10 @@ class AmpelExtase::BuildState
     !!@is_building
   end
 
+  def success?
+    %w[SUCCESS N/A].include? @last_result
+  end
+
   def to_a
     return @last_result, @is_building
   end

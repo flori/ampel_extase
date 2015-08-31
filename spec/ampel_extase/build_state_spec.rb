@@ -21,16 +21,23 @@ describe AmpelExtase::BuildState do
     it 'reads N/A as a string' do
       expect(bs.to_s).to eq 'N/A'
     end
+
+    it 'is a success, provisionally' do
+      expect(bs).to be_success
+    end
   end
 
-  describe 'an intermediate state' do
+  describe 'a success state' do
     let :bs do
       described_class.for [ 'SUCCESS', true ]
     end
 
-
     it 'has SUCCESS as the last result' do
       expect(bs.last_result).to eq 'SUCCESS'
+    end
+
+    it 'is a success' do
+      expect(bs).to be_success
     end
 
     describe 'building' do
@@ -66,6 +73,16 @@ describe AmpelExtase::BuildState do
     end
   end
 
+  describe 'a failed state' do
+    let :bs do
+      described_class.for [ 'FAILURE', true ]
+    end
+
+    it 'is not a success' do
+      expect(bs).not_to be_success
+    end
+  end
+
   describe 'equality' do
     it 'can be equal or unequal' do
       foo_true = described_class.for([ 'FOO', true ])
@@ -75,6 +92,5 @@ describe AmpelExtase::BuildState do
       expect(foo_true).not_to eq foo_false
       expect(foo_true).not_to eq bar_true
     end
-
   end
 end

@@ -73,9 +73,8 @@ describe AmpelExtase::JenkinsWarningStateObserver do
 
   describe '#expired?' do
     it 'checks if all of its observers are expired' do
-      expect(observer).to receive(:state_changed_at).and_return Time.now - 666
+      expect(jenkins_warning_state_observer).to receive(:last_failure_at).and_return Time.now - 666
       expect(jenkins_warning_state_observer).to be_expired(60)
     end
   end
 end
-

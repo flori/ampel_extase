@@ -41,6 +41,8 @@ class AmpelExtase::JenkinsStateObserver
     self
   end
 
+  attr_reader :build_state
+
   attr_reader :state_changed_at
 
   def fetch_new_state

@@ -31,11 +31,12 @@ class AmpelExtase::JenkinsWarningStateObserver
     self
   end
 
-  def last_state_change
-    @observers.map(&:state_changed_at).max
+  def last_failure_at
+    @observers.reject { |o| o.build_state.success? }.
+      map(&:state_changed_at).max || Time.at(0)
   end
 
   def expired?(duration)
-    Time.now - last_state_change > duration
+    Time.now - last_failure_at > duration
   end
 end
