@@ -5,8 +5,18 @@ describe AmpelExtase::JenkinsWarningStateObserver do
     described_class.new [ observer ]
   end
 
+  let :client do
+    double('AmpelExtase::JenkinsClient', url: 'http://foo/bar')
+  end
+
   let :observer do
-    double('AmpelExtase::JenkinsStateObserver')
+    AmpelExtase::JenkinsStateObserver.new client
+  end
+
+  before do
+    allow(client).to receive(:fetch).and_return true
+    allow_any_instance_of(AmpelExtase::JenkinsStateObserver).to receive(:puts)
+    allow_any_instance_of(AmpelExtase::JenkinsClient).to receive(:puts)
   end
 
   describe '.for_urls' do
@@ -37,23 +47,34 @@ describe AmpelExtase::JenkinsWarningStateObserver do
       AmpelExtase::BuildState.for [ 'FAILURE', true ]
     end
 
-    it 'skips observers that are already expired b4 duration' do
-      expect(observer).to receive(:expired?).with(666).and_return true
-      expect(observer).not_to receive(:on_state_change)
+    it 'delegates on_state_change to observers' do
+      expect(observer).to receive(:on_state_change)
       jenkins_warning_state_observer.on_state_change(666)
     end
 
+    it 'executes state change action on FAILURE/ABORTED result' do
+      allow(observer).to receive(:fetch_new_state).and_return bs_failure
+      executed = false
+      jenkins_warning_state_observer.on_state_change(666) do
+        executed = true
+      end
+      expect(executed).to eq true
+    end
+
     it 'skips states where the last result is not FAILURE/ABORTED' do
-      expect(observer).to receive(:expired?).with(666).and_return false
-      allow(observer).to receive(:on_state_change)
-      jenkins_warning_state_observer.on_state_change(666)
+      allow(observer).to receive(:fetch_new_state).and_return bs_success
+      executed = false
+      jenkins_warning_state_observer.on_state_change(666) do
+        executed = true
+      end
+      expect(executed).to eq false
     end
   end
 
   describe '#expired?' do
     it 'checks if all of its observers are expired' do
-      expect(observer).to receive(:expired?).with(666)
-      jenkins_warning_state_observer.expired?(666)
+      expect(observer).to receive(:state_changed_at).and_return Time.now - 666
+      expect(jenkins_warning_state_observer).to be_expired(60)
     end
   end
 end

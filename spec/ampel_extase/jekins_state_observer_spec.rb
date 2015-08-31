@@ -80,7 +80,7 @@ describe AmpelExtase::JenkinsStateObserver do
         jso
       end
       expect(jso.instance_variable_get(:@build_state)).to eq bs_initial
-      expect(jso.instance_variable_get(:@state_changed_at)).to eq past
+      expect(jso.state_changed_at).to eq past
       allow(client).to receive(:fetch_build).with(:last_completed_build).
         and_return('result' => 'SUCCESS')
       allow(client).to receive(:fetch_build).with(:last_build).
@@ -97,7 +97,7 @@ describe AmpelExtase::JenkinsStateObserver do
         }.to yield_with_args(bs_success)
       end
       expect(jso.instance_variable_get(:@build_state)).to eq bs_success
-      expect(jso.instance_variable_get(:@state_changed_at)).to eq now
+      expect(jso.state_changed_at).to eq now
       allow(client).to receive(:fetch_build).with(:last_completed_build).
         and_return('result' => 'FAILURE')
       allow(client).to receive(:fetch_build).with(:last_build).
