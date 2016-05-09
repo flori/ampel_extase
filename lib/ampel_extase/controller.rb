@@ -59,7 +59,6 @@ class AmpelExtase::Controller
   end
 
   def perform
-    @crashed = false
     @ampel_jenkins.on_state_change do |state|
       perform_lights_switch state
     end
@@ -135,11 +134,9 @@ class AmpelExtase::Controller
 
   def handle_crash(exception)
     warn "Caught: #{exception.class}: #{exception}\n#{exception.backtrace * ?\n}"
-    return if @crashed
+    @ampel_jenkins.reset
+    @warning_jenkins.reset
     switch_all_lights_off
-  rescue
-  ensure
-    @crashed = true
   end
 
   def check_lights

@@ -13,8 +13,12 @@ class AmpelExtase::JenkinsStateObserver
 
   def initialize(jenkins)
     @jenkins = jenkins
-    set_state AmpelExtase::BuildState.for
+    reset
     check
+  end
+
+  def reset
+    set_state AmpelExtase::BuildState.for
   end
 
   def check

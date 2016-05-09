@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
     s.specification_version = 4
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<gem_hadar>, ["~> 1.3.1"])
+      s.add_development_dependency(%q<gem_hadar>, ["~> 1.7.1"])
       s.add_development_dependency(%q<simplecov>, ["~> 0.9"])
       s.add_development_dependency(%q<rspec>, ["~> 3.0"])
       s.add_development_dependency(%q<byebug>, [">= 0"])
@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<term-ansicolor>, ["~> 1.0"])
       s.add_runtime_dependency(%q<socket_switcher>, [">= 0"])
     else
-      s.add_dependency(%q<gem_hadar>, ["~> 1.3.1"])
+      s.add_dependency(%q<gem_hadar>, ["~> 1.7.1"])
       s.add_dependency(%q<simplecov>, ["~> 0.9"])
       s.add_dependency(%q<rspec>, ["~> 3.0"])
       s.add_dependency(%q<byebug>, [">= 0"])
@@ -44,7 +44,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<socket_switcher>, [">= 0"])
     end
   else
-    s.add_dependency(%q<gem_hadar>, ["~> 1.3.1"])
+    s.add_dependency(%q<gem_hadar>, ["~> 1.7.1"])
     s.add_dependency(%q<simplecov>, ["~> 0.9"])
     s.add_dependency(%q<rspec>, ["~> 3.0"])
     s.add_dependency(%q<byebug>, [">= 0"])

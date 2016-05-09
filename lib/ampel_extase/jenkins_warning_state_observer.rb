@@ -15,6 +15,10 @@ class AmpelExtase::JenkinsWarningStateObserver
     @observers = observers
   end
 
+  def reset
+    @observers.each(&:reset)
+  end
+
   def check
     @observers.each(&:check)
   end
