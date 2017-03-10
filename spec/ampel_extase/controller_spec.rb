@@ -113,21 +113,18 @@ describe AmpelExtase::Controller do
       controller.instance_eval { perform }
     end
 
-    let :aux do
-      double('Device', on: true)
+    let :lights do
+      double('Lights', aux: double('Device', on: true, off: true))
     end
 
     before do
-      controller.instance_variable_set :@lights, double('Lights', aux: aux)
+      controller.instance_variable_set :@lights, lights
     end
 
     it 'reacts to state changes' do
-      allow(ampel_semaphore).to receive(:state_changed?).and_return true
-      expect { |b| ampel_semaphore.on_state_change(&b) }.to yield_with_args(ampel_semaphore.fetch_new_state)
-      allow(warning_jenkins1).to receive(:state_changed?).and_return true
-      state = AmpelExtase::BuildState.for [ 'FAILURE', false ]
-      allow(warning_jenkins1).to receive(:fetch_new_state).and_return state
-      expect { |b| warning_jenkins.on_state_change(60, &b) }.to yield_with_args(state)
+      state = AmpelExtase::BuildState.for [ 'passed', false ]
+      allow(ampel_semaphore).to receive(:fetch_new_state).and_return state
+      expect { |b| ampel_semaphore.on_state_change(&b) }.to yield_with_args(state)
       perform
     end
   end

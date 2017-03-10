@@ -70,12 +70,11 @@ class AmpelExtase::Controller
   end
 
   def perform_lights_switch(state)
-    case state.last_result
-    when 'SUCCESS'
+    if state.success?
       @lights.green.on
       @lights.red.off
       puts success('LIGHTS SUCCESS')
-    when 'FAILURE', 'ABORTED'
+    else
       @lights.red.on
       if state.building?
         @lights.green.on
