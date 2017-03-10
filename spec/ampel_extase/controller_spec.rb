@@ -3,13 +3,15 @@ require 'spec_helper'
 describe AmpelExtase::Controller do
   before do
     allow_any_instance_of(AmpelExtase::JenkinsClient).to receive(:puts)
+    allow_any_instance_of(AmpelExtase::SemaphoreClient).to receive(:puts)
     allow_any_instance_of(described_class).to receive(:puts)
+    allow_any_instance_of(AmpelExtase::SemaphoreStateObserver).to receive(:puts)
     allow_any_instance_of(AmpelExtase::JenkinsStateObserver).to receive(:puts)
     allow_any_instance_of(described_class).to receive(:sleep)
   end
 
   let :ampel_client do
-    double('AmpelExtase::JenkinsClient', url: 'http://foo/bar')
+    double('AmpelExtase::SemaphoreClient', url: 'http://foo/bar')
   end
 
   let :warning_client1 do
@@ -20,16 +22,16 @@ describe AmpelExtase::Controller do
     double('AmpelExtase::JenkinsClient', url: 'http://foo/bar')
   end
 
-  let :ampel_jenkins do
-    AmpelExtase::JenkinsStateObserver.new ampel_client
+  let :ampel_semaphore do
+    AmpelExtase::SemaphoreStateObserver.new ampel_client
   end
 
   let :warning_jenkins1 do
-    AmpelExtase::JenkinsStateObserver.new(warning_client1)
+    AmpelExtase::SemaphoreStateObserver.new(warning_client1)
   end
 
   let :warning_jenkins2 do
-    AmpelExtase::JenkinsStateObserver.new(warning_client2)
+    AmpelExtase::SemaphoreStateObserver.new(warning_client2)
   end
 
   let :warning_jenkins do
@@ -44,7 +46,7 @@ describe AmpelExtase::Controller do
 
   let :controller do
     described_class.new(
-      ampel_jenkins,
+      ampel_semaphore,
       warning_jenkins,
       lights
     )
@@ -65,9 +67,9 @@ describe AmpelExtase::Controller do
     it 'can create a demo object that does not really do anything' do
       demo_object = described_class.for(
         serial: nil,
-        jenkins_url: nil
+        semaphore_url: nil
       )
-      expect(demo_object.instance_eval { @ampel_jenkins }).to be_nil
+      expect(demo_object.instance_eval { @ampel_semaphore }).to be_nil
       expect(demo_object.instance_eval { @warning_jenkins }).to be_nil
       expect(demo_object.instance_eval { @lights }).to be_nil
     end
@@ -120,9 +122,8 @@ describe AmpelExtase::Controller do
     end
 
     it 'reacts to state changes' do
-      state = AmpelExtase::BuildState.for
-      allow(ampel_jenkins).to receive(:state_changed?).and_return true
-      expect { |b| ampel_jenkins.on_state_change(&b) }.to yield_with_args(state)
+      allow(ampel_semaphore).to receive(:state_changed?).and_return true
+      expect { |b| ampel_semaphore.on_state_change(&b) }.to yield_with_args(ampel_semaphore.fetch_new_state)
       allow(warning_jenkins1).to receive(:state_changed?).and_return true
       state = AmpelExtase::BuildState.for [ 'FAILURE', false ]
       allow(warning_jenkins1).to receive(:fetch_new_state).and_return state

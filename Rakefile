@@ -2,6 +2,10 @@
 
 require 'gem_hadar'
 
+task :console do
+  sh 'irb -rubygems -I lib -r ampel_extase.rb'
+end
+
 GemHadar do
   name        'ampel_extase'
   author      'Florian Frank'

@@ -15,7 +15,7 @@ class AmpelExtase::BuildState
   end
 
   def success?
-    %w[SUCCESS N/A].include? @last_result
+    %w[passed SUCCESS N/A].include? @last_result
   end
 
   def to_a

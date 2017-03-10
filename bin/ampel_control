@@ -7,14 +7,14 @@ serial =
     serial = ENV['SERIAL'].full? or
       fail 'need env var SERIAL for path to serial port'
   end
-jenkins_url = ENV['JENKINS_URL'].full? or
-  fail 'need env var JENKINS_URL of the form http://test2.local:8080/job/foo'
+semaphore_url = ENV['SEMAPHORE_URL'].full? or
+  fail 'need env var SEMAPHORE_URL'
 warning_jenkins_url = ENV['WARNING_JENKINS_URL'].full?
 sleep_duration = (ENV['SLEEP'] || 10).to_i
 
 AmpelExtase::Controller.for(
   serial: serial,
-  jenkins_url: jenkins_url,
+  semaphore_url: semaphore_url,
   warning_jenkins_url: warning_jenkins_url,
   sleep: sleep_duration
 ).start
