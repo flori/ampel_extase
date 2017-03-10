@@ -124,6 +124,7 @@ class AmpelExtase::Controller
   def info(message)
     yellow message
   end
+  
   def switch_all_lights_off
     @lights.each(&:off)
   end
