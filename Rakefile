@@ -12,7 +12,7 @@ GemHadar do
   licenses    << 'GPL-2'
   test_dir    'spec'
   ignore      '.*.sw[pon]', 'pkg', 'Gemfile.lock', '.rvmrc', 'coverage',
-    'tags', '.bundle', '.DS_Store', '.build', 'errors.lst'
+    'tags', '.bundle', '.DS_Store', '.build', 'errors.lst', '.byebug_history'
 
   readme      'README.md'
   executables.merge Dir['bin/*'].map { |x| File.basename(x) }
